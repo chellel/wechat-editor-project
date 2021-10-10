@@ -15,7 +15,7 @@
 		data() {
 			return {
 				content: '',
-				uploadUrl: 'aa',
+				uploadUrl: '',
 				fileData: {}
 			}
 		},

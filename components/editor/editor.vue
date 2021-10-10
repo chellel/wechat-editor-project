@@ -88,32 +88,35 @@
 					return {}
 				}
 			},
+			// 单位MB
 			uploadSize: {
-				// 单位MB
 				type: Number,
 				default: 5
 			},
+			// 最多可以选择的图片张数
 			count: {
 				type: Number,
 				default: 5
 			},
+			// 所选的图片的尺寸
 			sizeType: {
 				type: Array,
 				default: function() {
-					return ['original']; //['original', 'compressed']
+					return ['original'] //['original', 'compressed']
 				}
 			},
+			// 选择图片的来源
 			sourceType: {
 				type: Array,
 				default: function() {
-					return ['album', 'camera'];
+					return ['album', 'camera']
 				}
 			},
 			//不允许上传的图片类型
 			noAllowType: {
 				type: Array,
 				default: function() {
-					return []; //['gif']
+					return [] //['gif']
 				}
 			},
 			name: {
@@ -140,19 +143,18 @@
 				scrollHeightDefault: 0,
 				keyboardHeight: 0,
 				readOnly: true,
-				isDefaultFormat: true,
+				isDefaultFormat: true, // 首次聚集时设置默认格式
 				isIos: false,
-				uploadHost: '',
 				inputFocus: false,
 				formats: {},
 				formatArray: [{
 						type: 'feature',
 						array: [{
-								name: 'insertImage',
+								name: 'chooseImage',
 								icon: 'image'
 							},
 							{
-								name: 'insertImagebyCamera',
+								name: 'chooseImagebyCamera',
 								icon: 'photo'
 							},
 							{
@@ -384,20 +386,20 @@
 		watch: {
 			keyboardHeight(newVal, oldVal) {
 				if (newVal > 0) {
-					this.toolBarContentShow = false;
+					this.toolBarContentShow = false
 				}
-				// this.updatePosition(newVal);
+				// this.updatePosition(newVal)
 			},
 			toolbarShow(val) {
-				if (!val) this.toolBarContentShow = val;
+				if (!val) this.toolBarContentShow = val
 			}
 		},
 		created() {
-			this.index = 0;
-			this.createdAt = Date.now();
-			this.getUid = () => `wux-upload--${this.createdAt}-${++this.index}`;
-			this.uploadTask = {};
-			this.tempFilePaths = [];
+			this.index = 0
+			this.createdAt = Date.now()
+			this.getUid = () => `wux-upload--${this.createdAt}-${++this.index}`
+			this.uploadTask = {}
+			this.tempFilePaths = []
 		},
 		mounted() {
 			let that = this
@@ -411,22 +413,22 @@
 			})
 
 			uni.onKeyboardHeightChange(res => {
-				let keyboardHeight = that.keyboardHeight;
-				if (res.height === keyboardHeight) return;
+				let keyboardHeight = that.keyboardHeight
+				if (res.height === keyboardHeight) return
 
 				this.keyboardHeight = res.height;
-				const duration = res.height > 0 ? res.duration * 1000 : 0;
+				const duration = res.height > 0 ? res.duration * 1000 : 0
 				keyboardHeight = res.height;
 				setTimeout(() => {
 					uni.pageScrollTo({
 						scrollTop: 0,
 						success() {
-							that.updatePosition(keyboardHeight);
-							that.editorCtx.scrollIntoView(); //使得编辑器光标处滚动到窗口可视区域内
+							that.updatePosition(keyboardHeight)
+							that.editorCtx.scrollIntoView() //使得编辑器光标处滚动到窗口可视区域内
 						}
-					});
-				}, duration);
-			});
+					})
+				}, duration)
+			})
 		},
 		beforeDestroy() {
 			console.log("editor beforeDestroy")
@@ -451,66 +453,64 @@
 				}
 			},
 			changeSwiper(current) {
-				// this.editorCtx.blur();
-				this.toolBarContentShow = true;
-				this.swiperCurrent = current;
+				// this.editorCtx.blur()
+				this.toolBarContentShow = true
+				this.swiperCurrent = current
 			},
 			updatePosition(keyboardHeight) {
-				this.keyboardHeight = keyboardHeight;
+				this.keyboardHeight = keyboardHeight
 			},
 			onEditorReady() {
-				const that = this;
+				const that = this
 				uni.createSelectorQuery()
 					.in(this)
 					.select('#editor')
 					.context(function(res) {
-						that.editorCtx = res.context;
-						that.setValue(that.content);
+						that.editorCtx = res.context
+						that.setValue(that.content)
 						// //设置默认格式
-						// // that.editorCtx.format('header', '4');
-						// that.editorCtx.format('fontSize', '14px');
-						// that.editorCtx.format('align', 'left');
-						// that.editorCtx.format('lineHeight', '1.3');
+						// // that.editorCtx.format('header', '4')
+						// that.editorCtx.format('fontSize', '14px')
+						// that.editorCtx.format('align', 'left')
+						// that.editorCtx.format('lineHeight', '1.3')
 						//setContents设置内容后editor会自动聚焦，解决：先设置read_only为true,赋值后再把read_only属性设置为false
-						that.readOnly = false;
+						that.readOnly = false
 					})
-					.exec();
+					.exec()
 			},
 			onEditorInput(e) {
 				let {
 					html,
 					text
-				} = e.detail;
-				this.curLength = text.length - 1;
+				} = e.detail
+				this.curLength = text.length - 1
 			},
 			onEditorFocus(e) {
-				this.toolbarShow = true;
-				this.inputFocus = true;
+				this.toolbarShow = true
+				this.inputFocus = true
 				if (this.isDefaultFormat) {
 					//设置默认格式
-					// this.editorCtx.format('header', '4');
-					this.editorCtx.format('fontSize', '14px');
-					this.editorCtx.format('align', 'left');
-					// this.editorCtx.format('lineHeight', '1.3');
-					this.isDefaultFormat = false;
+					this.editorCtx.format('fontSize', '14px')
+					this.editorCtx.format('align', 'left')
+					this.isDefaultFormat = false
 				}
 			},
 			onEditorBlur() {
-				this.editorCtx.blur();
-				this.updatePosition(0);
-				this.inputFocus = false;
+				this.editorCtx.blur()
+				this.updatePosition(0)
+				this.inputFocus = false
 			},
 			showKeyBoard() {
-				this.toolBarContentShow = false;
+				this.toolBarContentShow = false
 			},
 			hideToolbar() {
-				this.editorCtx.blur();
-				this.toolbarShow = false;
+				this.editorCtx.blur()
+				this.toolbarShow = false
 			},
 			// 修改默认样式
 			formatDefault(format) {
 				for (let name in format) {
-					this.editorCtx.format(name, format[name]);
+					this.editorCtx.format(name, format[name])
 				}
 				if (format.bold) {
 					this.editorCtx.format('bold', true)
@@ -533,113 +533,127 @@
 						} else {
 							this.editorCtx.format(name, value)
 						}
-						break;
+						break
 					case 'removeFormat': //删除字体样式
-						this.editorCtx.removeFormat();
-						break;
+						this.editorCtx.removeFormat()
+						break
 					case 'insertDate': //插入时间
-						var date = new Date();
+						var date = new Date()
 						var formatDate = `${date.getFullYear()} 年${date.getMonth() + 1} 月${date.getDate()} 日`;
 						this.editorCtx.insertText({
 							text: formatDate
-						});
-						break;
+						})
+						break
 					case 'check': //设置当前行为待办列表格式
-						this.editorCtx.format('list', 'check');
-						break;
+						this.editorCtx.format('list', 'check')
+						break
 					case 'undo': //撤销操作
-						this.editorCtx.undo();
-						break;
+						this.editorCtx.undo()
+						break
 					case 'redo': //恢复操作
-						this.editorCtx.redo();
-						break;
+						this.editorCtx.redo()
+						break
 					case 'insertDivider': //添加分割线
-						this.editorCtx.insertDivider();
-						break;
+						this.editorCtx.insertDivider()
+						break
 					case 'clear': //清除内容
-						this.editorCtx.clear();
+						this.editorCtx.clear()
+						break
+					case 'chooseImage': //插入相册图片
+						this.chooseImage()
 						break;
-					case 'insertImage': //插入相册图片
-						this.insertImage();
-						break;
-					case 'insertImagebyCamera': //拍摄
-						this.insertImage(true);
-						break;
+					case 'chooseImagebyCamera': //拍摄
+						this.chooseImage(true)
+						break
 				}
 			},
 			onStatusChange(e) {
-				this.formats = e.detail;
+				this.formats = e.detail
 				console.log(this.formats)
 			},
 			clear() {
 				this.editorCtx.clear({
 					success: function(res) {
-						console.log('clear success');
+						console.log('clear success')
 					}
-				});
+				})
 			},
 			removeFormat() {
-				this.editorCtx.removeFormat();
+				this.editorCtx.removeFormat()
 			},
-			insertImage(onlyCamera) {
-				const that = this;
+			chooseImage(onlyCamera) {
 				const success = res => {
-					// that.editorCtx.insertImage({
-					// 	src: res.tempFilePaths[0],
-					// 	data: {
-					// 		id: 'abcd',
-					// 		role: '111111111'
-					// 	}
-					// 	// extClass: 'data-local'
-					// });
-
 					this.tempFilePaths = res.tempFiles.map(item => ({
 						url: item.path,
 						size: item.size,
 						type: item.path.substring(item.path.lastIndexOf('.') + 1, item.path.length),
 						uid: this.getUid()
-					}));
-					this.$emit('before', res);
-					this.verifyFile();
-					this.$nextTick(() => {
-						this.uploadFile(this.tempFilePaths.length);
-					});
-				};
-
+					}))
+					/* 直接插入临时图片地址 start */
+					this.tempFilePaths.forEach(file => {
+						this.insertImage(item.url, file)
+					})
+					/* 直接插入临时图片地址 end */
+					
+					// 当前插入图片src地址直接使用临时路径，如果对接接口上传，使用以下代码：
+					/* 上传文件 start */
+					// this.$emit('before', res)
+					// this.verifyFile()
+					// this.$nextTick(() => {
+					// 	this.uploadFile(this.tempFilePaths.length)
+					// })
+					/* 上传文件 end */
+					
+				}
+				
 				const {
 					count,
 					sizeType
-				} = this;
+				} = this
 				setTimeout(() => {
 					uni.chooseImage({
 						count,
 						sizeType,
 						sourceType: onlyCamera ? ['camera'] : this.sourceType,
 						success
-					});
-				}, 100);
+					})
+				}, 100)
+			},
+			insertImage(src, file) {
+				var that = this
+				that.editorCtx.insertImage({
+					src,
+					data: {
+						id: file.uid
+					},
+					// extClass:'editor-img',
+					extClass: 'editor--editor-img', //添加到图片 img标签上的类名为editor-img，设置前缀editor--才生效。部分机型点击图片右边的光标时不灵敏，需将样式editor-img宽度调小 max-width:98%;从而在图片右侧中留出部分位置供用户点击聚集。
+					success(e) {
+						//真机会自动插入一行空格
+						//   that.editorCtx.insertText({ text: '\n' })  //自动插入一个空行，方便用户移动光标
+					}
+				})
 			},
 			/**
 			 * 上传文件，支持多图递归上传
 			 */
 			uploadFile(uploadCount, curIndex) {
-				if (!this.tempFilePaths.length) return;
+				if (!this.tempFilePaths.length) return
 				const {
 					url,
 					name,
 					header,
 					formData,
 					progress
-				} = this;
-				const file = this.tempFilePaths.shift();
-				curIndex ? (file.index = curIndex + 1) : (file.index = 1);
+				} = this
+				const file = this.tempFilePaths.shift()
+				curIndex ? (file.index = curIndex + 1) : (file.index = 1)
 				let {
 					uid,
 					url: filePath
-				} = file;
-				if (!url || !filePath) return;
+				} = file
+				if (!url || !filePath) return
 
-				//  this.onStart(file)
 				this.uploadTask[uid] = uni.uploadFile({
 					url,
 					filePath,
@@ -649,17 +663,17 @@
 					success: res => this.onSuccess(file, res),
 					fail: res => this.onFail(file, res),
 					complete: res => {
-						delete this.uploadTask[uid];
-						this.$emit('complete', res);
-						//同时选择多图上传时，insertImage事件只校验第一张图片大小，多图递归上传需逐一校验
-						if (!this.tempFilePaths.length) return;
-						this.verifyFile();
-						this.uploadFile(uploadCount, file.index);
+						delete this.uploadTask[uid]
+						this.$emit('complete', res)
+						//同时选择多图上传时，只校验第一张图片大小，多图递归上传需逐一校验
+						if (!this.tempFilePaths.length) return
+						this.verifyFile()
+						this.uploadFile(uploadCount, file.index)
 					}
-				});
+				})
 				// 判断是否监听上传进度变化
 				if (progress) {
-					this.uploadTask[uid].onProgressUpdate(res => this.onProgress(file, res, uploadCount));
+					this.uploadTask[uid].onProgressUpdate(res => this.onProgress(file, res, uploadCount))
 				}
 			},
 			/**校验图片格式和大小是否符合规则 */
@@ -667,58 +681,42 @@
 				var {
 					size: tempFilesSize,
 					type
-				} = this.tempFilePaths[0]; //获取图片的大小，单位B
+				} = this.tempFilePaths[0] //获取图片的大小，单位B
 				this.noAllowType.map(item => {
 					if (type == item) {
 						uni.showToast({
 							title: `不支持上传${item}图片`,
 							icon: 'none'
-						});
-						this.tempFilePaths.shift();
+						})
+						this.tempFilePaths.shift()
 					}
-				});
+				})
 
 				if (tempFilesSize / 1024 > this.uploadSize * 1024) {
 					uni.showToast({
 						title: '上传图片不能大于' + this.bytesToSize(this.uploadSize * 1024 * 1024) + '!',
 						icon: 'none'
-					});
-					this.tempFilePaths.shift();
+					})
+					this.tempFilePaths.shift()
 				}
 			},
 			onSuccess(file, res) {
-				var that = this;
-				let json = JSON.parse(res.data);
+				//按照接口自行处理数据，insertImage的src参数为接口返回的图片地址
+				let json = JSON.parse(res.data)
 				if (json.code == 1) {
-					// that.getValue(res => {
-					//   //delta
-					// })
-					that.editorCtx.insertImage({
-						src: that.uploadHost + json.data.path,
-						data: {
-							id: file.uid
-						},
-						// extClass:'editor-img',
-						extClass: 'editor--editor-img', //添加到图片 img标签上的类名为editor-img，设置前缀editor--才生效。部分机型点击图片右边的光标时不灵敏，需在editor-img将图片宽度调小 max-width:98%;
-						// width: '100%',
-						success(e) {
-							//真机会自动插入一行空格
-							//   that.editorCtx.insertText({ text: '\n' });  //自动插入一个空行，方便用户移动光标
-						}
-					});
+					this.insertImage(json.data.path, file)
 				} else {
 					uni.showToast({
-						title: json.message || '上传失败，图片格式只允许：png、gif、jpeg、jpg',
-						icon: 'none',
-						duration: 2000
-					});
+						title: '图片上传失败',
+						icon: 'none'
+					})
 				}
 			},
 			onFail(file, res) {
 				uni.showToast({
 					title: '图片上传失败！',
 					icon: 'none'
-				});
+				})
 			},
 			/**
 			 * 监听上传进度变化的回调函数
@@ -731,31 +729,30 @@
 					uni.showToast({
 						title: `正在上传图片${file.index}/${uploadCount}`,
 						icon: 'none'
-					});
+					})
 				}
 
 				const targetItem = {
 					...file,
 					progress: res.progress,
 					res
-				};
+				}
 				const info = {
 					file: targetItem
-				};
+				}
 
-				this.$emit('progress', info);
+				this.$emit('progress', info)
 			},
 			bytesToSize: function(bytes) {
-				if (bytes === 0) return '0 B';
+				if (bytes === 0) return '0 B'
 				var k = 1024,
 					sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],
-					i = Math.floor(Math.log(bytes) / Math.log(k));
+					i = Math.floor(Math.log(bytes) / Math.log(k))
 
-				return (bytes / Math.pow(k, i)).toPrecision(3) + ' ' + sizes[i];
+				return (bytes / Math.pow(k, i)).toPrecision(3) + ' ' + sizes[i]
 			},
 			setValue(value) {
 				if (this.editorCtx) {
-					if (value != '') value = handleHtmlImage(value, this.uploadHost);
 					this.editorCtx.setContents({
 						html: value,
 						success: () => {
@@ -765,34 +762,33 @@
 										html: res.html,
 										text: res.text
 									}
-								});
-								console.log('update')
-								this.$emit('update', res);
-							});
+								})
+								this.$emit('update', res)
+							})
 						}
-					});
+					})
 				}
 			},
 			getContents(callback) {
 				//由于获取编辑器内容getContents为异步，因此需要使用callback回调
 				this.editorCtx.getContents({
 					success: res => {
-						callback(res);
+						callback(res)
 					}
-				});
+				})
 			},
 			save() {
 				this.editorCtx.getContents({
 					success: res => {
-						console.log(res);
-						res.html = handleHtmlImage(res.html, '', true);
-						// this.value = res.html;
-						this.$emit('save', res);
+						console.log(res)
+						res.html = handleHtmlImage(res.html, true)
+						// this.value = res.html
+						this.$emit('save', res)
 					}
-				});
+				})
 			}
 		}
-	};
+	}
 </script>
 
 <style lang="scss" scoped>
