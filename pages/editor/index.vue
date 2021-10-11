@@ -5,7 +5,7 @@
 </template>
 
 <script>
-  import cuEditor from '@/components/editor/editor'
+  import cuEditor from '@/components/cu-editor/cu-editor'
 	import { handleHtmlImage } from '@/utils'
   
 	export default {
@@ -25,7 +25,7 @@
 				item.content ? this.content = item.content : ''
 			}
 		},
-		beforeDestroy() {
+		onUnload() {
 			this.$refs.editor.save()
 		},
 		methods: {

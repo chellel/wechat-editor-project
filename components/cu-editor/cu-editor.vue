@@ -1,5 +1,6 @@
 <template>
 	<view>
+		<button @click="save">save</button>
 		<scroll-view scroll-y :scroll-with-animation="scrollAnimation" :scroll-top="scrollTop"
 			:scroll-into-view="scrollToView" @scrolltoupper="loadHistory" upper-threshold="50"
 			:style="{ height: scrollViewHeight + 'px' }">
@@ -591,7 +592,7 @@
 					}))
 					/* 直接插入临时图片地址 start */
 					this.tempFilePaths.forEach(file => {
-						this.insertImage(item.url, file)
+						this.insertImage(file.url, file)
 					})
 					/* 直接插入临时图片地址 end */
 					
@@ -784,6 +785,9 @@
 						res.html = handleHtmlImage(res.html, true)
 						// this.value = res.html
 						this.$emit('save', res)
+					},
+					complete: res => {
+						console.log('getContents complete')
 					}
 				})
 			}
