@@ -1,13 +1,18 @@
 # wechat-editor-project
 
-照着腾讯文档小程序开发了微信小程序富文本编辑器组件，这几天做个整理，如果有这个需求可以前往腾讯文档小程序操作看看实际效果。毕竟是官方自家的小程序，无法做到百分百效果，只能按现有开放api尽可能实现。
-当前组件仅支持微信小程序，兼容安卓和ios。
-项目地址：https://github.com/chellel/wechat-editor-project
-效果图
+照着腾讯文档小程序开发了微信小程序富文本编辑器组件，这几天做个整理，如果有这个需求可以前往腾讯文档小程序操作看看实际效果。毕竟是官方自家的小程序，无法做到百分百效果，只能按现有开放api尽可能实现。  
+
+当前组件仅支持微信小程序，兼容安卓和ios。  
+
+项目地址：https://github.com/chellel/wechat-editor-project  
+
+效果图  
+
+![富文本编辑器.jpg](https://upload-images.jianshu.io/upload_images/18829662-5793fe6fcb61c4ec.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
 ![微信小程序富文本编辑器1.png](https://upload-images.jianshu.io/upload_images/18829662-a7dcdf2401b10126.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/375)
 
 ![微信小程序富文本编辑器2.png](https://upload-images.jianshu.io/upload_images/18829662-5a032afc456fc103.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/375)
-
 
 ![微信小程序富文本编辑器3.png](https://upload-images.jianshu.io/upload_images/18829662-3da640fe7e44ef94.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/375)
 
