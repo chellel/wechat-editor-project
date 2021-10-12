@@ -1,9 +1,9 @@
 <template>
 	<view class="editor-container">
-		<!-- <view class="fixed-top" :class="{ 'isFixed': isFixed }">
+		<view class="fixed-top" :class="{ 'isFixed': isFixed }">
 			<button class="btn btn-primary" @click="save">保存</button>
 		</view>
-		<view class="fixed-top__place"></view> -->
+		<view class="fixed-top__place"></view>
 		<scroll-view :scroll-top="scrollTop" scroll-y="true" :style="{ height: scrollViewHeight + 'px' }" @scroll="scroll">
 			<editor id="editor" class="cu-editor" :placeholder="placeholder" :read-only="readOnly"
 				:show-img-size="showImgSize" :show-img-toolbar="showImgToolbar" :show-img-resize="showImgResize"

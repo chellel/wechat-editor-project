@@ -34,6 +34,9 @@
 				]
 			}
 		},
+		onUnload() {
+			uni.$off('save')
+		},
 		methods: {
 			toDetail(item) {
 				uni.navigateTo({
@@ -44,15 +47,21 @@
 				uni.navigateTo({
 					url: '/pages/editor/index'
 				})
+				let id = (this.list.length + 1).toString()
 				uni.$on('save', res => { //开启监听保存事件
-					let index = this.list.length + 1
-					this.list.push({
-						id: index.toString(),
-						title: '文章' + index,
-						content: res.html
-					})
+					let content = res.html
+					let idx = this.list.findIndex(m => m.id === id)
+					if (idx !== -1) {
+						this.$set(this.list[idx], 'content', content)
+					} else {
+						this.list.push({
+							id: id,
+							title: '文章' + id,
+							content
+						})
+					}
 				})
-			},
+			}
 		}
 	}
 </script>

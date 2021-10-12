@@ -26,6 +26,9 @@
 				this.content = item.content
 			}
 		},
+		onUnload() {
+			uni.$off('save')
+		},
 		methods: {
 			toEditor() {
 				uni.navigateTo({

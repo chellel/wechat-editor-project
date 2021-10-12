@@ -25,9 +25,6 @@
 				item.content ? this.content = item.content : ''
 			}
 		},
-		onUnload() {
-			this.$refs.editor.save()
-		},
 		methods: {
 			uploadBeforeUpload: function() {
 				this.fileData = {
