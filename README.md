@@ -1,18 +1,14 @@
-# wechat-editor-project
-
-照着腾讯文档小程序开发了微信小程序富文本编辑器组件，这几天做个整理，如果有这个需求可以前往腾讯文档小程序操作看看实际效果。毕竟是官方自家的小程序，无法做到百分百效果，只能按现有开放api尽可能实现。  
-
-当前组件仅支持微信小程序，兼容安卓和ios。  
+照着腾讯文档小程序开发了微信小程序富文本编辑器组件，这几天做个整理，如有这个需求可以前往腾讯文档小程序操作看看实际效果。毕竟参照的是微信自家小程序，无法做到百分百效果，只能按现有开放api尽可能实现。  
 
 项目地址：https://github.com/chellel/wechat-editor-project  
-
-效果图  
+效果  
 
 ![富文本编辑器.jpg](https://upload-images.jianshu.io/upload_images/18829662-5793fe6fcb61c4ec.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
 ![微信小程序富文本编辑器1.png](https://upload-images.jianshu.io/upload_images/18829662-a7dcdf2401b10126.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/375)
 
 ![微信小程序富文本编辑器2.png](https://upload-images.jianshu.io/upload_images/18829662-5a032afc456fc103.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/375)
+
 
 ![微信小程序富文本编辑器3.png](https://upload-images.jianshu.io/upload_images/18829662-3da640fe7e44ef94.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/375)
 
@@ -38,23 +34,23 @@ that.editorCtx = res.context
 
 ##### 2、页面调用组件时，组件不能与editor同名，即定义一个新的组件名，正确引用：
   ```
-  import cuEditor from '@/components/editor/editor'
+import cuEditor from '@/components/cu-editor/cu-editor'
 
 <cu-editor></cu-editor>
   ```
 
-否则会引起css影响。小程序本身editor标签有css样式：
+否则会受到小程序css影响。小程序本身editor标签有css样式：
 editor {
-display: block;
-position: relative;
-box-sizing: border-box;
--webkit-user-select: text;
-user-select: text;
-outline: 0;
-overflow: hidden;
-width: 100%;
-height: 200px;
-min-height: 200px;
+    display: block;
+    position: relative;
+    box-sizing: border-box;
+    -webkit-user-select: text;
+    user-select: text;
+    outline: 0;
+    overflow: hidden;
+    width: 100%;
+    height: 200px;
+    min-height: 200px;
 }
 
 ##### 3、监听键盘调起时，注释wx.pageScrollTo 直接执行
@@ -164,7 +160,7 @@ const handleHtmlImage = (html, url = '',resetClass) => {
 }
 ```
 
-editor调用wx.hideKeyboard不能关闭软键盘，隐藏键盘直接用EditorContext.blur
+
 
 
 
@@ -183,7 +179,7 @@ editor调用wx.hideKeyboard不能关闭软键盘，隐藏键盘直接用EditorCo
 
 
 #### 目前仍存在的问题：
-##### 1、editor组件不支持拉起键盘操作
+##### bug1、editor调用uni.hideKeyboard()隐藏软键盘的api，不能关闭软键盘，，隐藏键盘只能用EditorContext.blur，这样会导致一个问题，见bug2。同时也不支持拉起键盘操作。
 **参考：请问editor组件控制拉起键盘操作支持吗？**
 https://developers.weixin.qq.com/community/develop/doc/0006eeb6ae8cf0e7f3293e13f56400?highLine=editor%25E6%2598%25BE%25E7%25A4%25BA%25E9%2594%25AE%25E7%259B%2598
 
@@ -191,14 +187,11 @@ https://developers.weixin.qq.com/community/develop/doc/0006eeb6ae8cf0e7f3293e13f
 
 不支持的。iOS无法通过接口拉起键盘，必须用户点击；安卓则可以。所以，终究是不一致，不行。。
 
+##### bug2、由于隐藏键盘只能用EditorContext.blur，即调用了失焦api。在设置格式面板时，会失去当前焦点光标以及高亮显示状态。
 
-
+#### 开发富文本编辑器可参考其他文档：
+小程序富文本编辑器editor初体验：(https://www.jianshu.com/p/a932639ba7a6)
 如果是微信原生开发，将demo组件中的相关dom元素标签和api换成微信原生即可。
 
 
 
-
-##### 2、在设置格式面板时，会失去当前焦点光标以及高亮。
-
-#### 开发富文本编辑器可参考其他文档：
-小程序富文本编辑器editor初体验：(https://www.jianshu.com/p/a932639ba7a6)

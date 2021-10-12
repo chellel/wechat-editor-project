@@ -1,20 +1,21 @@
 <template>
-	<view>
-		<button @click="save">save</button>
-		<scroll-view scroll-y :scroll-with-animation="scrollAnimation" :scroll-top="scrollTop"
-			:scroll-into-view="scrollToView" @scrolltoupper="loadHistory" upper-threshold="50"
-			:style="{ height: scrollViewHeight + 'px' }">
-			<editor id="editor" class="editor-container" :placeholder="placeholder" :read-only="readOnly"
+	<view class="editor-container">
+		<!-- <view class="fixed-top" :class="{ 'isFixed': isFixed }">
+			<button class="btn btn-primary" @click="save">保存</button>
+		</view>
+		<view class="fixed-top__place"></view> -->
+		<scroll-view :scroll-top="scrollTop" scroll-y="true" :style="{ height: scrollViewHeight + 'px' }" @scroll="scroll">
+			<editor id="editor" class="cu-editor" :placeholder="placeholder" :read-only="readOnly"
 				:show-img-size="showImgSize" :show-img-toolbar="showImgToolbar" :show-img-resize="showImgResize"
 				@statuschange="onStatusChange" @ready="onEditorReady" @input="onEditorInput" @focus="onEditorFocus"
 				@blur="onEditorBlur"></editor>
 		</scroll-view>
-		<view class="fixed-bottom" :hidden="!toolbarShow" :style="{ bottom: fixedBottom + 'px' }">
+		<view class="fixed-bottom" :hidden="!toolbarShow" :style="{ bottom: fixedBottom + 'px' }" @touchstart.stop="">
 			<view class="toolbar selector" :style="{height: toolBarHeight + 'rpx'}">
-				<view class="toolbar-item-header" @touchend.stop="showKeyBoard"><i class="iconfont icon-keyboard"></i>
+				<view class="toolbar-item-header" @touchend.stop="changeKeyBoard"><i class="iconfont icon-keyboard"></i>
 				</view>
 				<view v-for="(icon, index) in ['icon-add', 'icon-textformat', 'icon-align-left']" class="toolbar-item"
-					@tap.stop="changeSwiper(index)">
+					 @touchend.stop="changeSwiper(index)">
 					<i class="iconfont" :class="[icon, { active: toolBarContentShow && swiperCurrent == index }]"></i>
 				</view>
 
@@ -62,7 +63,8 @@
 <script>
 	import {
 		handleHtmlImage
-	} from '@/utils';
+	} from './util'
+	
 	export default {
 		name: 'cuEditor',
 		props: {
@@ -140,6 +142,8 @@
 		},
 		data() {
 			return {
+				isFixed: true,
+				scrollTop: 0,
 				iphoneXBottomH: 0,
 				scrollHeightDefault: 0,
 				keyboardHeight: 0,
@@ -368,12 +372,16 @@
 			};
 		},
 		computed: {
-			toolbarHeight() {
-				return this.toolBarContentShow ? uni.upx2px(this.toolBarHeight + this.toolBarContentHeight) : this
-					.toolbarShow ? uni.upx2px(100) : 0;
+			fullToolBarHeight() {
+				let height = 0
+				this.toolbarShow ? height += this.toolBarHeight : ''
+				this.toolBarContentShow ? height += this.toolBarContentHeight : ''
+				return uni.upx2px(height)
+				// return this.toolBarContentShow ? uni.upx2px(this.toolBarHeight + this.toolBarContentHeight) : this
+				// 	.toolbarShow ? uni.upx2px(this.toolBarHeight) : 0;
 			},
 			scrollHeight() {
-				return this.scrollHeightDefault - this.toolbarHeight;
+				return this.scrollHeightDefault - this.fullToolBarHeight;
 			},
 			scrollViewHeight() {
 				let scrollViewHeight = this.scrollHeight - this.keyboardHeight;
@@ -453,10 +461,15 @@
 					return value ? this.formats[name] === value : this.formats[name]
 				}
 			},
+			
+			hideKeyboard() {
+				// uni.hideKeyboard() //uni-app提供了隐藏软键盘的api，但是没有生效
+				this.editorCtx.blur()
+			},
 			changeSwiper(current) {
-				// this.editorCtx.blur()
 				this.toolBarContentShow = true
 				this.swiperCurrent = current
+				this.hideKeyboard()
 			},
 			updatePosition(keyboardHeight) {
 				this.keyboardHeight = keyboardHeight
@@ -501,11 +514,12 @@
 				this.updatePosition(0)
 				this.inputFocus = false
 			},
-			showKeyBoard() {
+			changeKeyBoard() {
 				this.toolBarContentShow = false
+				this.hideKeyboard()
 			},
 			hideToolbar() {
-				this.editorCtx.blur()
+				this.hideKeyboard()
 				this.toolbarShow = false
 			},
 			// 修改默认样式
@@ -595,7 +609,7 @@
 						this.insertImage(file.url, file)
 					})
 					/* 直接插入临时图片地址 end */
-					
+
 					// 当前插入图片src地址直接使用临时路径，如果对接接口上传，使用以下代码：
 					/* 上传文件 start */
 					// this.$emit('before', res)
@@ -604,9 +618,9 @@
 					// 	this.uploadFile(this.tempFilePaths.length)
 					// })
 					/* 上传文件 end */
-					
+
 				}
-				
+
 				const {
 					count,
 					sizeType
@@ -783,15 +797,25 @@
 					success: res => {
 						console.log(res)
 						res.html = handleHtmlImage(res.html, true)
-						// this.value = res.html
 						this.$emit('save', res)
+						uni.showToast({
+							title: '保存成功',
+							icon: 'none'
+						})
 					},
 					complete: res => {
 						console.log('getContents complete')
 					}
 				})
-			}
+			},
+			scroll(e) {
+				console.log('scroll')
+				// const scrollTop = e.scrollTop
+				// this.isFixed = scrollTop > 100 ? this.scrollTop > scrollTop : true
+				// this.scrollTop = scrollTop;
+			},
 		}
+		
 	}
 </script>
 
@@ -802,11 +826,47 @@
 	$bg-color-hover: #eaeaea;
 	$main-color: #5b8ff9;
 
+	.fixed-top {
+		position: fixed;
+		top: -88rpx;
+		line-height: 88rpx;
+		border-bottom: solid 1rpx #F1F1F1;
+		padding: 0 30rpx;
+		box-sizing: border-box;
+		transition: all 0.3s ease;
+		background-color: #FFFFFF;
+		z-index: 999;
+
+		&.isFixed {
+			top: 0;
+		}
+
+		.btn {
+			float: right;
+			width: 100rpx;
+			height: 60rpx;
+			line-height: 60rpx;
+			font-size: 24rpx;
+			margin: 14rpx 0;
+			text-align: center;
+		}
+	}
+
+
+
+	.fixed-top,
+	.fixed-top__place {
+		width: 100%;
+		height: 88rpx;
+	}
+
 	.flex {
 		display: flex;
 	}
 
-	.editor-container {
+	.editor-container {}
+
+	.cu-editor {
 		box-sizing: border-box;
 		width: 100%;
 		height: 100%;

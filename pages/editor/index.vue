@@ -6,7 +6,7 @@
 
 <script>
   import cuEditor from '@/components/cu-editor/cu-editor'
-	import { handleHtmlImage } from '@/utils'
+	import { handleHtmlImage } from '@/components/cu-editor/util'
   
 	export default {
     components: {
@@ -34,6 +34,10 @@
 					timestamp: (Date.parse(new Date())) / 1000
 				}
 			},
+			onUpdate(res) {
+				res.html = handleHtmlImage(res.html)
+				this.value = res.html
+			},
 			//保存
 			onSave(e) {
 				let html = e.html
@@ -43,12 +47,7 @@
 				uni.$emit('save', {
 					html: txt == "" && !containsImage ? txt : html
 				})
-			},
-			onUpdate(res) {
-				res.html = handleHtmlImage(res.html)
-				this.value = res.html
-			},
-			
+			}
 		}
 	}
 </script>

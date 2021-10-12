@@ -1,0 +1,20 @@
+
+
+	.btn {
+		width: 100%;
+		position: relative;
+		border: 0 !important;
+		border-radius: 6rpx;
+		padding-left: 0;
+		padding-right: 0;
+		overflow: visible;
+	}
+
+	.btn-primary {
+		background: #5677fc !important;
+		color: #fff;
+	}
+	
+	.btn-primary:hover {
+		opacity: 0.8;
+	}
