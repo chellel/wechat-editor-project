@@ -1,3 +1,4 @@
+#### 自定义富文本编辑器
 照着腾讯文档小程序开发了微信小程序富文本编辑器组件，这几天做个整理，如有这个需求可以前往腾讯文档小程序操作看看实际效果。毕竟参照的是微信自家小程序，无法做到百分百效果，只能按现有开放api尽可能实现。  
 
 项目地址：https://github.com/chellel/wechat-editor-project  
@@ -11,7 +12,6 @@
 
 
 ![微信小程序富文本编辑器3.png](https://upload-images.jianshu.io/upload_images/18829662-3da640fe7e44ef94.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/375)
-
 
 
 **editor富文本编辑器组件官方文档**
@@ -140,23 +140,18 @@ that.editorCtx.insertImage({
 //保存时需处理掉editor--的class前缀
 
 /**
-  * 处理html中的图片地址和宽度
-  * resetClass:  是否将class="editor-- 更改为class="
-  * EditorContext.setContents时img标签的class会自带一个前缀editor--，如原class="editor-img"，EditorContext.setContents后class="editor--editor-img" */
-const handleHtmlImage = (html, url = '',resetClass) => {
-    var newHtml = html.replace(/<img [^>]*src=['"]([^'"]+)[^>]*>/ig, function(match, src) {
-        //返回每个匹配的字符串
-        var urlIdx = match.indexOf('src') + 5;
-        var fileIdx = match.indexOf('/uploads') != -1 ? match.indexOf('/uploads') : match.indexOf('/_uploads');
-        
-        var result = match;
-        if (fileIdx != -1)
-            result = match.substring(0, urlIdx) + url + match.substring(fileIdx, match.length);
-        if(resetClass) result = result.replace(/class=\"(.*)editor--/gi,'class="');
-        result = result.replace(/\<img/gi, '<img style="max-width:100%;height:auto"');
-        return result;
-    });
-    return newHtml;
+  * 处理html中的图片地址和宽度
+  * resetClass:  是否将class="editor-- 更改为class="
+  * EditorContext.setContents时img标签的class会自带一个前缀editor--，如原class="editor-img"，EditorContext.setContents后class="editor--editor-img" */
+export const handleHtmlImage = (html = '', resetClass) => {
+	var newHtml = html.replace(/<img [^>]*src=['"]([^'"]+)[^>]*>/ig, function(match, src) {
+		let result = match
+		//返回每个匹配的字符串
+		if(resetClass) result = result.replace(/class=\"(.*)editor--/gi,'class="');
+		result = result.replace(/\<img/gi, '<img style="max-width:100%;height:auto"');
+		return result;
+	});
+	return newHtml;
 }
 ```
 

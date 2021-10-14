@@ -5,7 +5,7 @@
 			<view class="cell-ft">查看详情</view>
 		</view>
 		<view class="btn-area">
-			<button class="btn btn-primary" @click="add">添加文章</button>
+			<button class="btn btn-primary" @click="add">添加</button>
 		</view>
 
 	</view>

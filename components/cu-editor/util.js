@@ -12,7 +12,3 @@ export const handleHtmlImage = (html = '', resetClass) => {
 	});
 	return newHtml;
 }
-
-export default {
-	handleHtmlImage
-}

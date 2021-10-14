@@ -1,10 +1,10 @@
 <template>
 	<view class="editor-container">
-		<view class="fixed-top" :class="{ 'isFixed': isFixed }">
+		<view id="fixed-top" class="fixed-top" :class="{ 'isFixed': isFixed }">
 			<button class="btn btn-primary" @click="save">保存</button>
 		</view>
 		<view class="fixed-top__place"></view>
-		<scroll-view :scroll-top="scrollTop" scroll-y="true" :style="{ height: scrollViewHeight + 'px' }" @scroll="scroll">
+		<scroll-view scroll-y :style="{ height: scrollViewHeight + 'px' }">
 			<editor id="editor" class="cu-editor" :placeholder="placeholder" :read-only="readOnly"
 				:show-img-size="showImgSize" :show-img-toolbar="showImgToolbar" :show-img-resize="showImgResize"
 				@statuschange="onStatusChange" @ready="onEditorReady" @input="onEditorInput" @focus="onEditorFocus"
@@ -15,7 +15,7 @@
 				<view class="toolbar-item-header" @touchend.stop="changeKeyBoard"><i class="iconfont icon-keyboard"></i>
 				</view>
 				<view v-for="(icon, index) in ['icon-add', 'icon-textformat', 'icon-align-left']" class="toolbar-item"
-					 @touchend.stop="changeSwiper(index)">
+					@touchend.stop="changeSwiper(index)">
 					<i class="iconfont" :class="[icon, { active: toolBarContentShow && swiperCurrent == index }]"></i>
 				</view>
 
@@ -64,7 +64,7 @@
 	import {
 		handleHtmlImage
 	} from './util'
-	
+
 	export default {
 		name: 'cuEditor',
 		props: {
@@ -81,6 +81,7 @@
 				type: String,
 				default: ''
 			},
+			//开发者上传文件的服务器地址
 			url: {
 				type: String,
 				default: ''
@@ -105,7 +106,7 @@
 			sizeType: {
 				type: Array,
 				default: function() {
-					return ['original'] //['original', 'compressed']
+					return ['original', 'compressed'] //['original', 'compressed']
 				}
 			},
 			// 选择图片的来源
@@ -129,7 +130,7 @@
 			header: {
 				type: Object,
 				default: function() {
-					return {};
+					return {}
 				}
 			},
 			progress: {
@@ -143,7 +144,6 @@
 		data() {
 			return {
 				isFixed: true,
-				scrollTop: 0,
 				iphoneXBottomH: 0,
 				scrollHeightDefault: 0,
 				keyboardHeight: 0,
@@ -367,6 +367,7 @@
 				swiperCurrent: 0,
 				toolbarShow: false,
 				toolBarContentShow: false,
+				fixedTopHeight: 0, // 顶部工具栏高度
 				toolBarHeight: 100, // 工具栏高度
 				toolBarContentHeight: 530 // 工具栏内容高度
 			};
@@ -381,7 +382,7 @@
 				// 	.toolbarShow ? uni.upx2px(this.toolBarHeight) : 0;
 			},
 			scrollHeight() {
-				return this.scrollHeightDefault - this.fullToolBarHeight;
+				return this.scrollHeightDefault - this.fixedTopHeight - this.fullToolBarHeight;
 			},
 			scrollViewHeight() {
 				let scrollViewHeight = this.scrollHeight - this.keyboardHeight;
@@ -412,6 +413,12 @@
 		},
 		mounted() {
 			let that = this
+			
+			const query = wx.createSelectorQuery().in(this)
+			query.select('#fixed-top').boundingClientRect(res => {
+				this.fixedTopHeight = res.height
+			}).exec()
+
 			const system = uni.getSystemInfo({
 				success: e => {
 					this.isIos = e.platform == 'ios'
@@ -461,7 +468,7 @@
 					return value ? this.formats[name] === value : this.formats[name]
 				}
 			},
-			
+
 			hideKeyboard() {
 				// uni.hideKeyboard() //uni-app提供了隐藏软键盘的api，但是没有生效
 				this.editorCtx.blur()
@@ -586,16 +593,6 @@
 				this.formats = e.detail
 				console.log(this.formats)
 			},
-			clear() {
-				this.editorCtx.clear({
-					success: function(res) {
-						console.log('clear success')
-					}
-				})
-			},
-			removeFormat() {
-				this.editorCtx.removeFormat()
-			},
 			chooseImage(onlyCamera) {
 				const success = res => {
 					this.tempFilePaths = res.tempFiles.map(item => ({
@@ -604,19 +601,25 @@
 						type: item.path.substring(item.path.lastIndexOf('.') + 1, item.path.length),
 						uid: this.getUid()
 					}))
+					// 当前插入图片src地址直接使用临时路径，如果对接接口上传，更改为使用【上传文件】代码片段：
+					
 					/* 直接插入临时图片地址 start */
+					
 					this.tempFilePaths.forEach(file => {
 						this.insertImage(file.url, file)
 					})
+					
 					/* 直接插入临时图片地址 end */
 
-					// 当前插入图片src地址直接使用临时路径，如果对接接口上传，使用以下代码：
+
 					/* 上传文件 start */
+					
 					// this.$emit('before', res)
 					// this.verifyFile()
 					// this.$nextTick(() => {
 					// 	this.uploadFile(this.tempFilePaths.length)
 					// })
+					
 					/* 上传文件 end */
 
 				}
@@ -645,7 +648,6 @@
 					extClass: 'editor--editor-img', //添加到图片 img标签上的类名为editor-img，设置前缀editor--才生效。部分机型点击图片右边的光标时不灵敏，需将样式editor-img宽度调小 max-width:98%;从而在图片右侧中留出部分位置供用户点击聚集。
 					success(e) {
 						//真机会自动插入一行空格
-						//   that.editorCtx.insertText({ text: '\n' })  //自动插入一个空行，方便用户移动光标
 					}
 				})
 			},
@@ -717,8 +719,14 @@
 			},
 			onSuccess(file, res) {
 				//按照接口自行处理数据，insertImage的src参数为接口返回的图片地址
+				/**
+				 * 示例数据:
+				   res = {
+				   	data: '{"code":0,"msg":"上传成功","data":{"path":"https://xxx.com/images/upload/1.png"}}'
+				   }
+				*/
 				let json = JSON.parse(res.data)
-				if (json.code == 1) {
+				if (json.code == 0) {
 					this.insertImage(json.data.path, file)
 				} else {
 					uni.showToast({
@@ -807,15 +815,9 @@
 						console.log('getContents complete')
 					}
 				})
-			},
-			scroll(e) {
-				console.log('scroll')
-				// const scrollTop = e.scrollTop
-				// this.isFixed = scrollTop > 100 ? this.scrollTop > scrollTop : true
-				// this.scrollTop = scrollTop;
-			},
+			}
 		}
-		
+
 	}
 </script>
 
@@ -842,6 +844,13 @@
 		}
 
 		.btn {
+			width: 100%;
+			position: relative;
+			border: 0 !important;
+			border-radius: 6rpx;
+			padding-left: 0;
+			padding-right: 0;
+			overflow: visible;
 			float: right;
 			width: 100rpx;
 			height: 60rpx;
@@ -850,9 +859,16 @@
 			margin: 14rpx 0;
 			text-align: center;
 		}
+		
+		.btn-primary {
+			background: #5677fc !important;
+			color: #fff;
+		}
+		
+		.btn-primary:hover {
+			opacity: 0.8;
+		}
 	}
-
-
 
 	.fixed-top,
 	.fixed-top__place {

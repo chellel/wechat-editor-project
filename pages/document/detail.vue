@@ -5,7 +5,6 @@
 				<button class="btn btn-primary" @click="toEditor">编辑</button>
 			</view>
 			<view class="text-area" v-html="content"></view>
-
 		</view>
 	</view>
 </template>
@@ -24,6 +23,9 @@
 				let item = JSON.parse(decodeURIComponent(options.item))
 				this.title = item.title
 				this.content = item.content
+				uni.setNavigationBarTitle({
+					title: this.title
+				})
 			}
 		},
 		onUnload() {

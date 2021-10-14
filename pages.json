@@ -3,13 +3,13 @@
 		{
 			"path": "pages/document/index",
 			"style": {
-				"navigationBarTitleText": "",
+				"navigationBarTitleText": "列表",
 				"enablePullDownRefresh": false
 			}
 		}, {
 			"path": "pages/document/detail",
 			"style": {
-				"navigationBarTitleText": "",
+				"navigationBarTitleText": "详情",
 				"enablePullDownRefresh": false
 			}
 		}, {

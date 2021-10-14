@@ -1,6 +1,6 @@
 <template>
 	<view>
-    <cu-editor ref="editor" :url="uploadUrl" :formData="fileData" :content="content" @before="uploadBeforeUpload" @update="onUpdate" @save="onSave"></cu-editor>
+    <cu-editor ref="editor" :url="uploadUrl" :header="header" :formData="formData" :content="content" @before="onUploadBefore" @update="onUpdate" @save="onSave"></cu-editor>
 	</view>
 </template>
 
@@ -16,7 +16,8 @@
 			return {
 				content: '',
 				uploadUrl: '',
-				fileData: {}
+				header: {},
+				formData: {}
 			}
 		},
 		onLoad(options) {
@@ -24,10 +25,13 @@
 				const item = JSON.parse(decodeURIComponent(options.item));
 				item.content ? this.content = item.content : ''
 			}
+			wx.enableAlertBeforeUnload({
+			  message: "询问对话框内容"
+			})
 		},
 		methods: {
-			uploadBeforeUpload: function() {
-				this.fileData = {
+			onUploadBefore: function() {
+				this.formData = {
 					timestamp: (Date.parse(new Date())) / 1000
 				}
 			},
