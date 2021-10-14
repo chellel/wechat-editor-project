@@ -68,78 +68,86 @@
 	export default {
 		name: 'cuEditor',
 		props: {
-			//编辑器高度
-			height: {
-				type: Number,
-				default: 200
-			},
+			//editor属性，提示信息
 			placeholder: {
 				type: String,
 				default: '请输入内容'
 			},
+			//editor属性，点击图片时显示图片大小控件
+			showImgSize: {
+				type: Boolean,
+				default: false
+			},
+			//editor属性，点击图片时显示工具栏控件
+			showImgToolbar: {
+				type: Boolean,
+				default: false
+			},
+			//editor属性，点击图片时显示修改尺寸控件
+			showImgResize: {
+				type: Boolean,
+				default: false
+			},
+			//编辑器内容，必填
 			content: {
 				type: String,
 				default: ''
 			},
-			//开发者上传文件的服务器地址
-			url: {
-				type: String,
-				default: ''
-			},
-			formData: {
-				type: Object,
-				default () {
-					return {}
-				}
-			},
-			// 单位MB
-			uploadSize: {
+			//chooseImage参数，最大文件大小，上传文件前校验是否符合规则，单位MB
+			maxSize: {
 				type: Number,
 				default: 5
 			},
-			// 最多可以选择的图片张数
+			//chooseImage参数，最多可以选择的图片张数
 			count: {
 				type: Number,
 				default: 5
 			},
-			// 所选的图片的尺寸
+			//chooseImage参数，所选的图片的尺寸
 			sizeType: {
 				type: Array,
-				default: function() {
+				default() {
 					return ['original', 'compressed'] //['original', 'compressed']
 				}
 			},
-			// 选择图片的来源
+			//chooseImage参数，选择图片的来源
 			sourceType: {
 				type: Array,
-				default: function() {
+				default() {
 					return ['album', 'camera']
 				}
 			},
 			//不允许上传的图片类型
 			noAllowType: {
 				type: Array,
-				default: function() {
+				default() {
 					return [] //['gif']
 				}
 			},
-			name: {
+			//uploadFile参数，必填
+			url: {
 				type: String,
-				default: 'file'
+				default: ''
 			},
+			//uploadFile参数
 			header: {
 				type: Object,
-				default: function() {
+				default() {
 					return {}
 				}
 			},
-			progress: {
-				type: Boolean,
-				default: true
+			//uploadFile参数
+			formData: {
+				type: Object,
+				default () {
+					return {}
+				}
 			},
-			showImgSize: Boolean,
-			showImgToolbar: Boolean,
-			showImgResize: Boolean
+			//uploadFile参数
+			name: {
+				type: String,
+				default: 'file'
+			}
 		},
 		data() {
 			return {
@@ -369,7 +377,8 @@
 				toolBarContentShow: false,
 				fixedTopHeight: 0, // 顶部工具栏高度
 				toolBarHeight: 100, // 工具栏高度
-				toolBarContentHeight: 530 // 工具栏内容高度
+				toolBarContentHeight: 530, // 工具栏内容高度
+				progress: true //判断是否监听上传进度变化
 			};
 		},
 		computed: {
@@ -378,8 +387,6 @@
 				this.toolbarShow ? height += this.toolBarHeight : ''
 				this.toolBarContentShow ? height += this.toolBarContentHeight : ''
 				return uni.upx2px(height)
-				// return this.toolBarContentShow ? uni.upx2px(this.toolBarHeight + this.toolBarContentHeight) : this
-				// 	.toolbarShow ? uni.upx2px(this.toolBarHeight) : 0;
 			},
 			scrollHeight() {
 				return this.scrollHeightDefault - this.fixedTopHeight - this.fullToolBarHeight;
@@ -412,8 +419,6 @@
 			this.tempFilePaths = []
 		},
 		mounted() {
-			let that = this
-			
 			const query = wx.createSelectorQuery().in(this)
 			query.select('#fixed-top').boundingClientRect(res => {
 				this.fixedTopHeight = res.height
@@ -429,7 +434,7 @@
 			})
 
 			uni.onKeyboardHeightChange(res => {
-				let keyboardHeight = that.keyboardHeight
+				let keyboardHeight = this.keyboardHeight
 				if (res.height === keyboardHeight) return
 
 				this.keyboardHeight = res.height;
@@ -438,9 +443,9 @@
 				setTimeout(() => {
 					uni.pageScrollTo({
 						scrollTop: 0,
-						success() {
-							that.updatePosition(keyboardHeight)
-							that.editorCtx.scrollIntoView() //使得编辑器光标处滚动到窗口可视区域内
+						success: () => {
+							this.updatePosition(keyboardHeight)
+							this.editorCtx.scrollIntoView() //使得编辑器光标处滚动到窗口可视区域内
 						}
 					})
 				}, duration)
@@ -602,24 +607,24 @@
 						uid: this.getUid()
 					}))
 					// 当前插入图片src地址直接使用临时路径，如果对接接口上传，更改为使用【上传文件】代码片段：
-					
+
 					/* 直接插入临时图片地址 start */
-					
+
 					this.tempFilePaths.forEach(file => {
 						this.insertImage(file.url, file)
 					})
-					
+
 					/* 直接插入临时图片地址 end */
 
 
 					/* 上传文件 start */
-					
+
 					// this.$emit('before', res)
 					// this.verifyFile()
 					// this.$nextTick(() => {
 					// 	this.uploadFile(this.tempFilePaths.length)
 					// })
-					
+
 					/* 上传文件 end */
 
 				}
@@ -709,9 +714,9 @@
 					}
 				})
 
-				if (tempFilesSize / 1024 > this.uploadSize * 1024) {
+				if (tempFilesSize / 1024 > this.maxSize * 1024) {
 					uni.showToast({
-						title: '上传图片不能大于' + this.bytesToSize(this.uploadSize * 1024 * 1024) + '!',
+						title: '上传图片不能大于' + this.bytesToSize(this.maxSize * 1024 * 1024) + '!',
 						icon: 'none'
 					})
 					this.tempFilePaths.shift()
@@ -859,12 +864,12 @@
 			margin: 14rpx 0;
 			text-align: center;
 		}
-		
+
 		.btn-primary {
 			background: #5677fc !important;
 			color: #fff;
 		}
-		
+
 		.btn-primary:hover {
 			opacity: 0.8;
 		}
