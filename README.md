@@ -20,7 +20,7 @@ https://developers.weixin.qq.com/miniprogram/dev/component/editor.html
 
 
 
-使用方法：
+使用方法
 -----------------
 
 ```
@@ -214,7 +214,8 @@ export const handleHtmlImage = (html = '', resetClass) => {
 
 
 
-#### 目前仍存在的问题：
+目前仍存在的问题
+-----------------
 ##### bug1、editor调用uni.hideKeyboard()隐藏软键盘的api，不能关闭软键盘，，隐藏键盘只能用EditorContext.blur，这样会导致一个问题，见bug2。同时也不支持拉起键盘操作。
 **参考：请问editor组件控制拉起键盘操作支持吗？**
 https://developers.weixin.qq.com/community/develop/doc/0006eeb6ae8cf0e7f3293e13f56400?highLine=editor%25E6%2598%25BE%25E7%25A4%25BA%25E9%2594%25AE%25E7%259B%2598
@@ -224,6 +225,15 @@ https://developers.weixin.qq.com/community/develop/doc/0006eeb6ae8cf0e7f3293e13f
 不支持的。iOS无法通过接口拉起键盘，必须用户点击；安卓则可以。所以，终究是不一致，不行。。
 
 ##### bug2、由于隐藏键盘只能用EditorContext.blur，即调用了失焦api。在设置格式面板时，会失去当前焦点光标以及高亮显示状态。
+
+
+总结
+-----------------
+该组件主要为微信editor组件的api调用集成封装，因此受到的限制同文档描述一致，即编辑器内支持部分 HTML 标签和内联样式，不支持class和id，支持的标签详见：https://developers.weixin.qq.com/miniprogram/dev/component/editor.html。
+不满足的标签会被忽略，\<div\>会被转行为\<p\>储存。
+这也是为什么在做富文本解析时，仅仅用rich-text组件无法有效还原html内容，在解析内容的时候就需要将内容中的HTML标签转换成微信小程序所支持的标签。因此最好方式是引入市场封装好的富文本解析插件去解析html。
+所以，开发者需要自行权衡在做富文本编辑开发时，是否使用微信自带的editor组件，或者参考腾讯文档小程序采用webview内嵌网页等方式去渲染。
+
 
 #### 开发富文本编辑器可参考其他文档：
 小程序富文本编辑器editor初体验：(https://www.jianshu.com/p/a932639ba7a6)
